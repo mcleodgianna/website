@@ -5,6 +5,77 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Projects — Gianna McLeod</title>
   <link rel="stylesheet" href="styles.css" />
+  <style>
+
+    .slideshow {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 14px;
+      margin-top: 6px;
+    }
+
+    .slideshow img {
+      border-radius: var(--radius-sm);
+      border: 2px solid var(--line);
+    }
+
+    .slide-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .slide-btn {
+      font-family: 'Quicksand', sans-serif;
+      font-weight: 700;
+      font-size: 0.88rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 20px;
+      border-radius: 100px;
+      cursor: pointer;
+      transition: transform 0.15s var(--ease), box-shadow 0.15s var(--ease), opacity 0.15s var(--ease);
+    }
+
+    .slide-btn.prev-btn {
+      background: var(--blush);
+      color: #8A4A63;
+      border: 2px solid var(--blush-deep);
+      box-shadow: 0 4px 0 var(--blush-deep);
+    }
+
+    .slide-btn.next-btn {
+      background: var(--sage);
+      color: #3E6B48;
+      border: 2px solid var(--sage-deep);
+      box-shadow: 0 4px 0 var(--sage-deep);
+    }
+
+    .slide-btn:hover:not(:disabled) { transform: translateY(-2px); }
+    .slide-btn.prev-btn:hover:not(:disabled) { box-shadow: 0 6px 0 var(--blush-deep); }
+    .slide-btn.next-btn:hover:not(:disabled) { box-shadow: 0 6px 0 var(--sage-deep); }
+
+    .slide-btn:active:not(:disabled) { transform: translateY(2px); }
+    .slide-btn.prev-btn:active:not(:disabled) { box-shadow: 0 2px 0 var(--blush-deep); }
+    .slide-btn.next-btn:active:not(:disabled) { box-shadow: 0 2px 0 var(--sage-deep); }
+
+    .slide-btn:disabled {
+      opacity: 0.45;
+      cursor: default;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .slide-counter {
+      font-family: 'Quicksand', sans-serif;
+      font-weight: 700;
+      font-size: 0.8rem;
+      letter-spacing: 0.04em;
+      color: var(--slate);
+    }
+  </style>
 </head>
 <body>
 
@@ -93,34 +164,43 @@
                 more project detail) are below.
               </p>
 
-              <img id="slide" src="slide1.png" width="600">
+              <div class="slideshow">
+                <img id="slide" src="/photos/bee GEes - Final Demo.png" width="600" alt="Capstone demo slide">
 
-              <br>
-              <button onclick="prev()">Prev</button>
-              <button onclick="next()">Next</button>
-              
+                <div class="slide-controls">
+                  <button id="prevBtn" class="slide-btn prev-btn" onclick="prev()">← Prev</button>
+                  <span class="slide-counter" id="slideCounter"></span>
+                  <button id="nextBtn" class="slide-btn next-btn" onclick="next()">Next →</button>
+                </div>
+              </div>
+
               <script>
-                let slides = ["photos/bee GEes - Final Demo.png","photos/bee GEes - Final Demo (1).png",
-                              "photos/bee GEes - Final Demo (2).png",
-                             "photos/bee GEes - Final Demo (3).png",
-                             "photos/bee GEes - Final Demo (4).png",
-                             "photos/bee GEes - Final Demo (5).png",
-                             "photos/bee GEes - Final Demo (6).png"];
+                let slides = ["/photos/bee GEes - Final Demo.png","/photos/bee GEes - Final Demo (1).png",
+                              "/photos/bee GEes - Final Demo (2).png",
+                             "/photos/bee GEes - Final Demo (3).png",
+                             "/photos/bee GEes - Final Demo (4).png",
+                             "/photos/bee GEes - Final Demo (5).png",
+                             "/photos/bee GEes - Final Demo (6).png"];
                 let i = 0;
-                
+
                 function show() {
                   document.getElementById("slide").src = slides[i];
+                  document.getElementById("slideCounter").textContent = (i + 1) + " / " + slides.length;
+                  document.getElementById("prevBtn").disabled = (i === 0);
+                  document.getElementById("nextBtn").disabled = (i === slides.length - 1);
                 }
-                
+
                 function next() {
                   if (i < slides.length - 1) i++;
                   show();
                 }
-                
+
                 function prev() {
                   if (i > 0) i--;
                   show();
                 }
+
+                show();
               </script>
             </div>
           </article>
