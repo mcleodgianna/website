@@ -46,8 +46,13 @@
            ============================================================ -->
       <section class="tight">
         <div id="game-root" class="game-frame">
-          <!-- Example placeholder — replace with your game's markup -->
-          <p class="game-placeholder-text">🌼 Your game goes here 🌼</p>
+          <div class="project-card">
+            <h3>Dodge the Blocks 🎮</h3>
+            <p>Move with arrow keys. Don't get hit!</p>
+            <canvas id="gameCanvas" width="400" height="500"></canvas>
+            <p id="score">Score: 0</p>
+            <button id="restartBtn" class="btn btn-primary">Restart</button>
+          </div>
         </div>
       </section>
 
@@ -78,11 +83,6 @@
 
   <script src="script.js"></script>
 
-  <!-- ============================================================
-       YOUR GAME'S JAVASCRIPT
-       Drop your game code in game.js (create this file next to
-       script.js), or paste it directly into a <script> tag here.
-       ============================================================ -->
   <script src="game.js"></script>
 
 </body>
