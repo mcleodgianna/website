@@ -1,4 +1,3 @@
-<script>
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
@@ -110,4 +109,3 @@ restartBtn.addEventListener("click", () => {
 
 init();
 gameLoop();
-</script>
