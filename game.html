@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Petal Dodge — a little game</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+  /* ---------------- Game page additions ---------------- */
+  .game-hero {
+    padding: 56px 0 8px;
+    text-align: center;
+  }
+
+  .game-hero .eyebrow { justify-content: center; display: flex; margin-bottom: 14px; }
+
+  .game-hero h1 { max-width: none; }
+
+  .game-hero .lede { margin: 0 auto; text-align: center; }
+
+  .game-shell {
+    max-width: 560px;
+    margin: 32px auto 0;
+    border: 2px solid var(--sky);
+    border-radius: var(--radius);
+    background: #FFFFFF;
+    box-shadow: 0 12px 28px -14px rgba(180, 151, 214, 0.4);
+    padding: 18px;
+  }
+
+  .game-hud {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 4px 14px;
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 700;
+    color: var(--ink-soft);
+    font-size: 0.95rem;
+  }
+
+  .game-hud span { color: var(--ink); }
+
+  #gameCanvas {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    border-radius: var(--radius-sm);
+    border: 2px solid var(--line);
+    background: var(--paper-dim);
+    touch-action: none;
+    cursor: pointer;
+  }
+
+  .game-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    margin-top: 16px;
+  }
+
+  .game-note {
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--slate);
+    margin-top: 14px;
+  }
+</style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="nav-inner">
+    <a class="nav-logo" href="index.html"><span class="dot"></span>Your Name</a>
+    <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false" onclick="document.querySelector('.nav-links').classList.toggle('open')"><span></span></button>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="projects.html">Projects</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="game.html" aria-current="page">Play</a></li>
+      <li><a href="connect.html">Connect</a></li>
+    </ul>
+  </div>
+</nav>
+
+<main>
+  <section class="game-hero">
+    <div class="wrap">
+      <span class="eyebrow">A little side project</span>
+      <h1>Petal Dodge</h1>
+      <p class="lede">Falling petals, one basket, nowhere to hide. Use the arrow keys, A/D, or drag to steer &mdash; see how long you can last.</p>
+    </div>
+  </section>
+
+  <section class="tight">
+    <div class="wrap">
+      <div class="game-shell">
+        <div class="game-hud">
+          <span>Score: <span id="score">0</span></span>
+          <span>Best: <span id="best">0</span></span>
+        </div>
+        <canvas id="gameCanvas" width="400" height="500"></canvas>
+        <div class="game-controls">
+          <button class="btn btn-primary" id="startBtn">Start game</button>
+        </div>
+        <p class="game-note">Tip: the petals speed up the longer you survive.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap-wide">
+    <p>&copy; 2026 Your Name</p>
+    <ul class="footer-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="projects.html">Projects</a></li>
+      <li><a href="connect.html">Connect</a></li>
+    </ul>
+  </div>
+</footer>
+
+<script>
+(() => {
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const colors = ['#6FA8D6', '#E896B4', '#B497D6', '#E8C458', '#8FC79C'];
+
+  const basket = { w: 64, h: 20, x: W / 2 - 32, y: H - 34, speed: 6 };
+  let petals = [], keys = {}, score = 0, best = Number(localStorage.getItem('petalBest') || 0);
+  let spawnTimer = 0, spawnEvery = 55, fallSpeed = 2.4, running = false, dragging = false;
+
+  document.getElementById('best').textContent = best;
+
+  function reset() {
+    petals = []; score = 0; spawnTimer = 0; spawnEvery = 55; fallSpeed = 2.4;
+    basket.x = W / 2 - basket.w / 2;
+    document.getElementById('score').textContent = 0;
+  }
+
+  function spawnPetal() {
+    const r = 12 + Math.random() * 6;
+    petals.push({ x: Math.random() * (W - r * 2) + r, y: -r, r, c: colors[Math.floor(Math.random() * colors.length)] });
+  }
+
+  function drawBasket() {
+    ctx.fillStyle = '#4A4458';
+    ctx.beginPath();
+    ctx.roundRect(basket.x, basket.y, basket.w, basket.h, 8);
+    ctx.fill();
+  }
+
+  function drawPetal(p) {
+    ctx.fillStyle = p.c;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  function update() {
+    if (keys.left || keys.ArrowLeft || keys.a) basket.x -= basket.speed;
+    if (keys.right || keys.ArrowRight || keys.d) basket.x += basket.speed;
+    basket.x = Math.max(0, Math.min(W - basket.w, basket.x));
+
+    spawnTimer++;
+    if (spawnTimer >= spawnEvery) { spawnTimer = 0; spawnPetal(); }
+
+    for (let i = petals.length - 1; i >= 0; i--) {
+      const p = petals[i];
+      p.y += fallSpeed;
+      const caught = p.y + p.r > basket.y && p.y - p.r < basket.y + basket.h &&
+                      p.x > basket.x - p.r && p.x < basket.x + basket.w + p.r;
+      if (caught) {
+        petals.splice(i, 1);
+        score++;
+        document.getElementById('score').textContent = score;
+        if (score % 8 === 0) { fallSpeed += 0.35; spawnEvery = Math.max(22, spawnEvery - 3); }
+      } else if (p.y - p.r > H) {
+        endGame();
+        return;
+      }
+    }
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    petals.forEach(drawPetal);
+    drawBasket();
+  }
+
+  function loop() {
+    if (!running) return;
+    update();
+    draw();
+    requestAnimationFrame(loop);
+  }
+
+  function endGame() {
+    running = false;
+    if (score > best) { best = score; localStorage.setItem('petalBest', best); document.getElementById('best').textContent = best; }
+    ctx.fillStyle = 'rgba(251,249,252,0.9)';
+    ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = '#4A4458';
+    ctx.textAlign = 'center';
+    ctx.font = '600 26px Fredoka, sans-serif';
+    ctx.fillText('Game over!', W / 2, H / 2 - 10);
+    ctx.font = '600 16px Quicksand, sans-serif';
+    ctx.fillText('Score: ' + score, W / 2, H / 2 + 20);
+    document.getElementById('startBtn').textContent = 'Play again';
+  }
+
+  document.getElementById('startBtn').addEventListener('click', () => {
+    reset();
+    running = true;
+    document.getElementById('startBtn').textContent = 'Restart';
+    loop();
+  });
+
+  window.addEventListener('keydown', e => { keys[e.key] = true; });
+  window.addEventListener('keyup', e => { keys[e.key] = false; });
+
+  function pointerMove(clientX) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = W / rect.width;
+    basket.x = (clientX - rect.left) * scaleX - basket.w / 2;
+  }
+  canvas.addEventListener('mousedown', () => dragging = true);
+  window.addEventListener('mouseup', () => dragging = false);
+  canvas.addEventListener('mousemove', e => { if (dragging) pointerMove(e.clientX); });
+  canvas.addEventListener('touchstart', e => pointerMove(e.touches[0].clientX));
+  canvas.addEventListener('touchmove', e => { pointerMove(e.touches[0].clientX); e.preventDefault(); }, { passive: false });
+
+  reset();
+  draw();
+})();
+</script>
+
+</body>
+</html>
