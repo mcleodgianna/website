@@ -513,6 +513,28 @@ section.tight { padding: 32px 0; }
   letter-spacing: 0.05em;
 }
 
+/* ---------------- Game page ---------------- */
+
+.game-frame {
+  border: 2px solid var(--line-strong);
+  border-radius: var(--radius);
+  background: #FFFFFF;
+  padding: 24px;
+  min-height: 420px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 28px -16px rgba(180, 151, 214, 0.35);
+}
+
+.game-placeholder-text {
+  font-family: 'Quicksand', sans-serif;
+  font-weight: 600;
+  color: var(--slate);
+  font-size: 1.05rem;
+  margin: 0;
+}
+
 /* ---------------- Footer ---------------- */
 
 footer {
