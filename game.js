@@ -1,9 +1,7 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
-
 const scoreEl = document.getElementById("score");
 const restartBtn = document.getElementById("restartBtn");
-
 let player, blocks, score, gameOver;
 
 function init() {
@@ -14,7 +12,6 @@ function init() {
     height: 20,
     speed: 6
   };
-
   blocks = [];
   score = 0;
   gameOver = false;
@@ -32,12 +29,8 @@ function spawnBlock() {
 
 function update() {
   if (gameOver) return;
-
-  // Move blocks
   blocks.forEach(block => {
     block.y += block.speed;
-
-    // Collision
     if (
       block.x < player.x + player.width &&
       block.x + block.width > player.x &&
@@ -47,28 +40,19 @@ function update() {
       gameOver = true;
     }
   });
-
-  // Remove off-screen blocks
   blocks = blocks.filter(block => block.y < canvas.height);
-
-  // Score increases over time
   score++;
   scoreEl.textContent = "Score: " + score;
 }
 
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  // Player (cute color from your palette)
   ctx.fillStyle = "#6FA8D6"; // sky-deep
   ctx.fillRect(player.x, player.y, player.width, player.height);
-
-  // Blocks
   ctx.fillStyle = "#E896B4"; // blush-deep
   blocks.forEach(block => {
     ctx.fillRect(block.x, block.y, block.width, block.height);
   });
-
   if (gameOver) {
     ctx.fillStyle = "#4A4458";
     ctx.font = "24px Fredoka";
@@ -83,26 +67,20 @@ function gameLoop() {
   requestAnimationFrame(gameLoop);
 }
 
-// Controls
 document.addEventListener("keydown", (e) => {
   if (gameOver) return;
-
   if (e.key === "ArrowLeft") {
     player.x -= player.speed;
   } else if (e.key === "ArrowRight") {
     player.x += player.speed;
   }
-
-  // Keep player in bounds
   player.x = Math.max(0, Math.min(canvas.width - player.width, player.x));
 });
 
-// Spawn blocks every ~700ms
 setInterval(() => {
   if (!gameOver) spawnBlock();
 }, 700);
 
-// Restart
 restartBtn.addEventListener("click", () => {
   init();
 });
